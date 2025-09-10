@@ -253,15 +253,16 @@ def submit_answer():
     else:
         game_session_db.set_student2_answers(game_session['student2']['answers'])
     
-    # Check if both students have answered all questions
-    student1_complete = len(game_session['student1']['answers']) == len(questions)
-    student2_complete = len(game_session['student2']['answers']) == len(questions)
+    # Check if both students have answered all questions for this session
+    total_q = len(game_session.get('questions', questions))
+    student1_complete = len(game_session['student1']['answers']) == total_q
+    student2_complete = len(game_session['student2']['answers']) == total_q
     
     # If both students have completed all questions, calculate scores
     if student1_complete and student2_complete:
         # Calculate matching answers
         matching_answers = 0
-        for i in range(len(questions)):
+        for i in range(total_q):
             if game_session['student1']['answers'][i] == game_session['student2']['answers'][i]:
                 matching_answers += 1
         

@@ -7,16 +7,31 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DEFAULT_QUESTIONS: List[Dict[str, str]] = [
-    {"question": "Would you rather...", "option1": "Copy someone else's homework the morning it's due", "option2": "Pay someone to write your final paper"},
-    {"question": "Would you rather...", "option1": "Take an exam you didn't study for honestly", "option2": "Cheat but risk getting caught and failing the course"},
-    {"question": "Would you rather...", "option1": "Work with a friend on an assignment meant to be individual", "option2": "Turn in an assignment late and lose points"},
-    {"question": "Would you rather...", "option1": "Use AI to write your entire essay", "option2": "Submit a poorly written essay you actually wrote"},
-    {"question": "Would you rather...", "option1": "Let a classmate copy your work knowing they'll keep doing it", "option2": "Refuse to share and risk the friendship"},
-    {"question": "Would you rather...", "option1": "Take credit for a group project you barely contributed to", "option2": "Tell the professor you didn't do your fair share"},
-    {"question": "Would you rather...", "option1": "Use a fake excuse to get an extension", "option2": "Submit incomplete work on time"},
-    {"question": "Would you rather...", "option1": "Have your professor discover you plagiarized", "option2": "Never get caught but always know you cheated"},
-    {"question": "Would you rather...", "option1": "Share test questions with friends after taking an exam", "option2": "Keep them to yourself knowing others might fail"},
-    {"question": "Would you rather...", "option1": "Get an A by cheating in one important course", "option2": "Get a B by being honest in all your courses"}
+    {"question": "Would you rather...", "option1": "Read a new book", "option2": "Re-read your favorite book"},
+    {"question": "Would you rather...", "option1": "Do a science project", "option2": "Write a short story"},
+    {"question": "Would you rather...", "option1": "Have extra art class", "option2": "Have extra music class"},
+    {"question": "Would you rather...", "option1": "Study with a friend", "option2": "Study by yourself"},
+    {"question": "Would you rather...", "option1": "Present to the class", "option2": "Make a poster"},
+    {"question": "Would you rather...", "option1": "Join the chess club", "option2": "Join the robotics club"},
+    {"question": "Would you rather...", "option1": "Do math puzzles", "option2": "Do word puzzles"},
+    {"question": "Would you rather...", "option1": "Have a field trip to a museum", "option2": "Have a field trip to a zoo"},
+    {"question": "Would you rather...", "option1": "Write with a pen", "option2": "Write with a pencil"},
+    {"question": "Would you rather...", "option1": "Learn a new language", "option2": "Learn to code"},
+    {"question": "Would you rather...", "option1": "Do a group project", "option2": "Do an individual project"},
+    {"question": "Would you rather...", "option1": "Have homework on weekdays only", "option2": "Have a small assignment every day"},
+    {"question": "Would you rather...", "option1": "Create a comic", "option2": "Create a slideshow"},
+    {"question": "Would you rather...", "option1": "Learn about space", "option2": "Learn about oceans"},
+    {"question": "Would you rather...", "option1": "Do a science experiment", "option2": "Build a model"},
+    {"question": "Would you rather...", "option1": "Have a quiet reading time", "option2": "Have a fun quiz game"},
+    {"question": "Would you rather...", "option1": "Practice typing", "option2": "Practice handwriting"},
+    {"question": "Would you rather...", "option1": "Draw a picture", "option2": "Take a photo"},
+    {"question": "Would you rather...", "option1": "Do a history timeline", "option2": "Build a geography map"},
+    {"question": "Would you rather...", "option1": "Watch an educational video", "option2": "Listen to a podcast"},
+    {"question": "Would you rather...", "option1": "Practice multiplication", "option2": "Practice fractions"},
+    {"question": "Would you rather...", "option1": "Have a class debate", "option2": "Have a class survey"},
+    {"question": "Would you rather...", "option1": "Read fiction", "option2": "Read non-fiction"},
+    {"question": "Would you rather...", "option1": "Write a poem", "option2": "Write a letter"},
+    {"question": "Would you rather...", "option1": "Do a nature walk", "option2": "Do a science lab"}
 ]
 
 
@@ -42,7 +57,11 @@ def generate_questions(student1_name: str, student2_name: Optional[str] = None, 
     model = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o-mini")
 
     if not api_key:
-        return DEFAULT_QUESTIONS[:count]
+        try:
+            import random as _random
+            return _random.sample(DEFAULT_QUESTIONS, k=min(count, len(DEFAULT_QUESTIONS)))
+        except Exception:
+            return DEFAULT_QUESTIONS[:count]
 
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
@@ -53,14 +72,19 @@ def generate_questions(student1_name: str, student2_name: Optional[str] = None, 
     names_fragment = f" between {student1_name} and {student2_name}" if student2_name else f" for {student1_name}"
 
     system_prompt = (
-        "You generate JSON only. Return an array of objects with keys 'question', 'option1', 'option2'. "
-        "Keep content school-friendly."
+        "You are an assistant that outputs JSON only. Return exactly the requested number of items. "
+        "Each item is an object with keys 'question', 'option1', 'option2'. "
+        "Content must be school-friendly (K-12), positive, inclusive, and age-appropriate. Avoid sensitive or adult themes, "
+        "bullying, cheating, academic dishonesty, violence, politics, religion, or anything that could make students uncomfortable. "
+        "Vary topics (arts, science, reading, sports, hobbies, class activities) and keep options parallel and comparable. "
+        "Do not include numbering, explanations, or any text outside the JSON array."
     )
 
     user_prompt = (
-        f"Create {count} 'Would you rather' questions{names_fragment}.{topic_fragment} "
-        "Example of a single item: {\n  \"question\": \"Would you rather...\",\n  \"option1\": \"Option A\",\n  \"option2\": \"Option B\"\n}. "
-        "Return JSON only, no prose."
+        f"Create {count} distinct 'Would you rather' questions{names_fragment}.{topic_fragment} "
+        "Ensure no duplicates and keep them light, fun, and educational. "
+        "Example of one item: {\n  \"question\": \"Would you rather...\",\n  \"option1\": \"Option A\",\n  \"option2\": \"Option B\"\n}. "
+        "Return JSON array only."
     )
 
     try:
@@ -70,6 +94,8 @@ def generate_questions(student1_name: str, student2_name: Optional[str] = None, 
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
+            temperature=0.9,
+            top_p=0.95,
         )
         content = completion.choices[0].message.content or ""
         parsed = _parse_json_response(content)
@@ -91,6 +117,5 @@ def generate_questions(student1_name: str, student2_name: Optional[str] = None, 
         return cleaned
     except Exception:
         return DEFAULT_QUESTIONS[:count]
-
 
 __all__ = ["generate_questions"]
