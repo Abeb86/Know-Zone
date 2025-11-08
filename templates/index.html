@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Academic Integrity Would You Rather</title>
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+  color: white;
+  text-align: center;
+  height: 100vh;
+  margin: 0;
+  padding: 20px;
+  overflow: hidden;
+}
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  transition: all 0.5s ease;
+}
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px #000;
+}
+.subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  font-style: italic;
+}
+.question-container {
+  min-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 30px 0;
+}
+.question {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  border-left: 5px solid #fdbb2d;
+}
+.options {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.option {
+  flex: 1;
+  min-width: 300px;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+.option:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-5px);
+  border-color: #fdbb2d;
+}
+.students {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 40px;
+}
+.student {
+  padding: 15px;
+  background-color: rgba(26, 42, 108, 0.7);
+  border-radius: 10px;
+  width: 45%;
+}
+.student.active {
+  box-shadow: 0 0 15px #fdbb2d;
+}
+button {
+  background-color: #fdbb2d;
+  color: #1a2a6c;
+  border: none;
+  padding: 12px 25px;
+  font-size: 1.1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 30px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+button:hover {
+  background-color: #ffcc4d;
+  transform: scale(1.05);
+}
+.score {
+  font-size: 1.3rem;
+  margin-top: 10px;
+  color: #fdbb2d;
+}
+.results {
+  display: none;
+  animation: fadeIn 1s ease;
+}
+.progress {
+  margin: 20px 0;
+  height: 10px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background-color: #fdbb2d;
+  width: 0%;
+  transition: width 0.5s ease;
+}
+.lobby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.code-input {
+  margin: 20px 0;
+  padding: 15px;
+  font-size: 1.2rem;
+  width: 150px;
+  text-align: center;
+  border-radius: 8px;
+  border: none;
+}
+.leaderboard {
+  margin-top: 30px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+}
+.leaderboard-table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-top: 20px;
+  border-radius: 8px;
+}
+.leaderboard-table-container::-webkit-scrollbar {
+  width: 8px;
+}
+.leaderboard-table-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.leaderboard-table-container::-webkit-scrollbar-thumb {
+  background: rgba(253, 187, 45, 0.5);
+  border-radius: 4px;
+}
+.leaderboard-table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(253, 187, 45, 0.7);
+}
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.leaderboard-table th,
+.leaderboard-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+.leaderboard-table th {
+  background-color: rgba(26, 42, 108, 0.7);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.leaderboard-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+.medal {
+  margin-right: 5px;
+}
+.gold { color: gold; }
+.silver { color: silver; }
+.bronze { color: #cd7f32; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes confetti {
+  0% { transform: translateY(0) rotate(0deg); }
+  100% { transform: translateY(-100vh) rotate(360deg); }
+}
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #f00;
+  animation: confetti 3s linear forwards;
+}
+.hidden {
+  display: none;
+}
+@media (max-width: 768px) {
+  .options {
+    flex-direction: column;
+  }
+  .option {
+    min-width: auto;
+  }
+  .students {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .student {
+    width: 90%;
+  }
+  .leaderboard-table-container {
+    max-height: 300px;
+  }
+  .leaderboard-table th,
+  .leaderboard-table td {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+}
+</style>
+</head>
+<body>
+<div class="container" id="game-container">
+  <!-- Login Screen -->
+  <div id="login-screen">
+    <h1>Academic Integrity Would You Rather</h1>
+    <p class="subtitle">Test your knowledge of academic values</p>
+    <div>
+      <input type="text" id="student-name" placeholder="Enter your name" class="code-input">
+      <button onclick="createGame()">Create New Game</button>
+      <button onclick="showJoinScreen()">Join Existing Game</button>
+    </div>
+  </div>
+
+  <!-- Join Screen -->
+  <div id="join-screen" class="hidden">
+    <h1>Join a Game</h1>
+    <div>
+      <input type="text" id="join-name" placeholder="Enter your name" class="code-input">
+      <input type="text" id="join-code" placeholder="Enter code" class="code-input">
+      <button onclick="joinGame()">Join Game</button>
+      <button onclick="showLoginScreen()">Back</button>
+    </div>
+  </div>
+
+  <!-- Lobby Screen -->
+  <div id="lobby" class="lobby hidden">
+    <h1>Academic Integrity Would You Rather</h1>
+    <p class="subtitle">Game Code: <span id="display-room-code">000</span></p>
+    <p id="lobby-message">Waiting for another student to join...</p>
+    <div id="student-list"></div>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-content" class="hidden">
+    <h1>Academic Integrity Would You Rather</h1>
+    <p class="subtitle">How well do you know your friend's academic values?</p>
+    <div class="progress">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div class="question-container">
+      <div class="question" id="question">Loading question...</div>
+    </div>
+    <div class="options">
+      <div class="option" id="option1" onclick="selectOption(1)">Option 1</div>
+      <div class="option" id="option2" onclick="selectOption(2)">Option 2</div>
+    </div>
+    <div class="students">
+      <div class="student" id="student1">
+        <h2><span id="student1-name">Student 1</span></h2>
+        <div class="score">Questions Answered: <span id="student1-progress">0/10</span></div>
+      </div>
+      <div class="student" id="student2">
+        <h2><span id="student2-name">Student 2</span></h2>
+        <div class="score">Questions Answered: <span id="student2-progress">0/10</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Screen -->
+  <div id="results" class="hidden">
+    <h2 id="result-title">🎉 Results 🎉</h2>
+    <p id="result-message"></p>
+    <div class="final-scores">
+      <h3>Final Score:</h3>
+      <p><span id="final-score">0</span> points</p>
+      <p>Matching answers: <span id="matching-answers">0</span>/10</p>
+    </div>
+    <div class="leaderboard">
+      <h3>🏆 Leaderboard 🏆</h3>
+      <div class="leaderboard-table-container">
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Students</th>
+              <th>Score</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <!-- Leaderboard will be populated here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <button onclick="returnToMenu()">Return to Menu</button>
+  </div>
+</div>
+
+<script>
+// Game state
+let currentStudentName = "";
+let currentSessionCode = "";
+let isCreator = false;
+let studentNumber = 0;
+let currentQuestionIndex = 0;
+let gameSession = null;
+
+// Initialize the game
+function init() {
+  showScreen('login-screen');
+  fetchLeaderboard();
+}
+
+// Screen management
+function showScreen(screenId) {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('join-screen').classList.add('hidden');
+  document.getElementById('lobby').classList.add('hidden');
+  document.getElementById('game-content').classList.add('hidden');
+  document.getElementById('results').classList.add('hidden');
+  
+  document.getElementById(screenId).classList.remove('hidden');
+}
+
+function showLoginScreen() {
+  showScreen('login-screen');
+}
+
+function showJoinScreen() {
+  showScreen('join-screen');
+}
+
+// Create new game
+function createGame() {
+  const studentName = document.getElementById('student-name').value.trim();
+  if (!studentName) {
+    alert('Please enter your name');
+    return;
+  }
+  
+  currentStudentName = studentName;
+  isCreator = true;
+  studentNumber = 1;
+  
+  fetch('/api/create_session', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ name: studentName })
+  })
+  .then(response => response.json())
+  .then(data => {
+    currentSessionCode = data.session_code;
+    gameSession = data.session_data;
+    
+    document.getElementById('display-room-code').textContent = currentSessionCode;
+    document.getElementById('lobby-message').textContent = 'Share this code with your friend:';
+    
+    updateStudentList();
+    showScreen('lobby');
+    
+    // Poll for updates
+    pollSessionUpdates();
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to create game');
+  });
+}
+
+// Join existing game
+function joinGame() {
+  const studentName = document.getElementById('join-name').value.trim();
+  const sessionCode = document.getElementById('join-code').value.trim();
+  
+  if (!studentName) {
+    alert('Please enter your name');
+    return;
+  }
+  
+  if (!sessionCode) {
+    alert('Please enter a session code');
+    return;
+  }
+  
+  currentStudentName = studentName;
+  currentSessionCode = sessionCode;
+  isCreator = false;
+  studentNumber = 2;
+  
+  fetch('/api/join_session', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ 
+      name: studentName,
+      session_code: sessionCode
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      return response.json().then(data => {
+        throw new Error(data.error || 'Failed to join game');
+      });
+    }
+    return response.json();
+  })
+  .then(data => {
+    gameSession = data.session_data;
+    
+    // Start the game immediately since we now have two players
+    startGame();
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert(error.message || 'Failed to join game');
+  });
+}
+
+// Update student list in lobby
+function updateStudentList() {
+  const studentList = document.getElementById('student-list');
+  studentList.innerHTML = '';
+  
+  if (gameSession.student1.name) {
+    const p1 = document.createElement('p');
+    p1.textContent = `Student 1: ${gameSession.student1.name}`;
+    studentList.appendChild(p1);
+  }
+  
+  if (gameSession.student2.name) {
+    const p2 = document.createElement('p');
+    p2.textContent = `Student 2: ${gameSession.student2.name}`;
+    studentList.appendChild(p2);
+  }
+}
+
+// Poll for session updates
+let pollInterval = null;
+
+function pollSessionUpdates() {
+  if (!currentSessionCode) return;
+  
+  // Clear existing poll if any
+  if (pollInterval) {
+    clearInterval(pollInterval);
+  }
+  
+  pollInterval = setInterval(() => {
+    fetch(`/api/get_session?session_code=${currentSessionCode}`)
+      .then(response => {
+        if (!response.ok) {
+          clearInterval(pollInterval);
+          pollInterval = null;
+          throw new Error('Session not found');
+        }
+        return response.json();
+      })
+      .then(data => {
+        const previousStatus = gameSession ? gameSession.status : null;
+        gameSession = data;
+        
+        // Check if second student has joined (in lobby)
+        if (gameSession.student2.name && gameSession.status === 'in_progress' && isCreator && previousStatus === 'waiting') {
+          clearInterval(pollInterval);
+          pollInterval = null;
+          startGame();
+          return;
+        }
+        
+        // Update student list if in lobby
+        if (document.getElementById('lobby') && !document.getElementById('lobby').classList.contains('hidden')) {
+          updateStudentList();
+        }
+        
+        // Update progress if in game
+        if (document.getElementById('game-content') && !document.getElementById('game-content').classList.contains('hidden')) {
+          updateProgressIndicators();
+          
+          // Check if game is completed
+          if (gameSession.status === 'completed') {
+            clearInterval(pollInterval);
+            pollInterval = null;
+            showResults();
+            return;
+          }
+          
+          // Update current question display if needed
+          const studentKey = `student${studentNumber}`;
+          const answeredCount = gameSession[studentKey].answers.length;
+          
+          // If student has answered more questions than current display, update
+          if (answeredCount > currentQuestionIndex && answeredCount < gameSession.questions.length) {
+            currentQuestionIndex = answeredCount;
+            displayQuestion();
+          } else if (answeredCount >= gameSession.questions.length) {
+            // All questions answered, show waiting message
+            checkGameCompletion();
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error polling session:', error);
+        clearInterval(pollInterval);
+        pollInterval = null;
+      });
+  }, 2000);
+}
+
+// Stop polling
+function stopPolling() {
+  if (pollInterval) {
+    clearInterval(pollInterval);
+    pollInterval = null;
+  }
+}
+
+// Start the game
+function startGame() {
+  // Set student names
+  document.getElementById('student1-name').textContent = gameSession.student1.name;
+  document.getElementById('student2-name').textContent = gameSession.student2.name;
+  
+  // Start the game
+  showScreen('game-content');
+  
+  // Set current question index based on how many questions this student has answered
+  const studentKey = `student${studentNumber}`;
+  currentQuestionIndex = gameSession[studentKey].answers.length;
+  
+  // Make sure we don't exceed the number of questions
+  if (currentQuestionIndex >= gameSession.questions.length) {
+    checkGameCompletion();
+  } else {
+    displayQuestion();
+    // Start polling for updates during the game
+    pollSessionUpdates();
+  }
+}
+
+// Display current question
+function displayQuestion() {
+  if (currentQuestionIndex >= gameSession.questions.length) {
+    checkGameCompletion();
+    return;
+  }
+  
+  const question = gameSession.questions[currentQuestionIndex];
+  document.getElementById('question').textContent = question.question;
+  document.getElementById('option1').textContent = question.option1;
+  document.getElementById('option2').textContent = question.option2;
+  
+  // Update progress bar based on answered questions
+  const studentKey = `student${studentNumber}`;
+  const answeredCount = gameSession[studentKey].answers.length;
+  document.getElementById('progress-bar').style.width = `${(answeredCount / gameSession.questions.length) * 100}%`;
+  
+  // Reset UI
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+    opt.style.borderColor = 'transparent';
+  });
+  
+  // Check if this question has already been answered and highlight the answer
+  const studentAnswers = gameSession[studentKey].answers;
+  if (studentAnswers.length > currentQuestionIndex) {
+    const previousAnswer = studentAnswers[currentQuestionIndex];
+    document.getElementById(`option${previousAnswer}`).style.backgroundColor = 'rgba(26, 42, 108, 0.7)';
+    document.getElementById(`option${previousAnswer}`).style.borderColor = '#fdbb2d';
+  }
+  
+  // Update progress indicators
+  updateProgressIndicators();
+}
+
+// Update progress indicators
+function updateProgressIndicators() {
+  const student1Progress = gameSession.student1.answers.length;
+  const student2Progress = gameSession.student2.answers.length;
+  const totalQuestions = gameSession.questions.length;
+  
+  document.getElementById('student1-progress').textContent = `${student1Progress}/${totalQuestions}`;
+  document.getElementById('student2-progress').textContent = `${student2Progress}/${totalQuestions}`;
+  
+  // Highlight current student
+  document.getElementById('student1').classList.remove('active');
+  document.getElementById('student2').classList.remove('active');
+  
+  if (studentNumber === 1 && student1Progress <= currentQuestionIndex) {
+    document.getElementById('student1').classList.add('active');
+  } else if (studentNumber === 2 && student2Progress <= currentQuestionIndex) {
+    document.getElementById('student2').classList.add('active');
+  }
+}
+
+// Select answer option
+function selectOption(optionNum) {
+  // Check if student has already answered this question
+  const studentKey = `student${studentNumber}`;
+  const answeredCount = gameSession[studentKey].answers.length;
+  
+  // Prevent answering if already answered this question or if all questions are answered
+  if (answeredCount > currentQuestionIndex || answeredCount >= gameSession.questions.length) {
+    return; // Already answered or completed
+  }
+  
+  // Prevent answering future questions
+  if (currentQuestionIndex > answeredCount) {
+    return; // Can't skip ahead
+  }
+  
+  // Disable options while submitting
+  document.querySelectorAll('.option').forEach(opt => {
+    opt.style.pointerEvents = 'none';
+  });
+  
+  // Submit answer
+  fetch('/api/submit_answer', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      session_code: currentSessionCode,
+      student_number: studentNumber,
+      answer: optionNum
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    gameSession = data.session_data;
+    
+    // Re-enable options
+    document.querySelectorAll('.option').forEach(opt => {
+      opt.style.pointerEvents = 'auto';
+    });
+    
+    // Update UI
+    document.getElementById(`option${optionNum}`).style.backgroundColor = 'rgba(26, 42, 108, 0.7)';
+    document.getElementById(`option${optionNum}`).style.borderColor = '#fdbb2d';
+    
+    // Check if game is completed
+    if (gameSession.status === 'completed') {
+      showResults();
+      return;
+    }
+    
+    // Update progress
+    updateProgressIndicators();
+    
+    // Move to next question if available
+    const newAnsweredCount = gameSession[studentKey].answers.length;
+    if (newAnsweredCount < gameSession.questions.length) {
+      currentQuestionIndex = newAnsweredCount;
+      setTimeout(() => {
+        displayQuestion();
+        checkGameCompletion();
+      }, 500);
+    } else {
+      // All questions answered, wait for other player
+      checkGameCompletion();
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Failed to submit answer');
+    // Re-enable options on error
+    document.querySelectorAll('.option').forEach(opt => {
+      opt.style.pointerEvents = 'auto';
+    });
+  });
+}
+
+// Check if game is complete
+function checkGameCompletion() {
+  if (gameSession.status === 'completed') {
+    stopPolling();
+    showResults();
+    return;
+  }
+  
+  // Check if all questions have been answered by this student
+  const studentKey = `student${studentNumber}`;
+  const answeredCount = gameSession[studentKey].answers.length;
+  const totalQuestions = gameSession.questions.length;
+  
+  if (answeredCount >= totalQuestions) {
+    // Show waiting message
+    document.getElementById('question').textContent = "You've completed all questions! Waiting for the other student to finish...";
+    document.getElementById('option1').style.display = 'none';
+    document.getElementById('option2').style.display = 'none';
+    
+    // Ensure polling is active
+    if (!pollInterval) {
+      pollSessionUpdates();
+    }
+  } else {
+    // Show options and display current question
+    document.getElementById('option1').style.display = 'block';
+    document.getElementById('option2').style.display = 'block';
+    
+    // Make sure we're on the right question
+    if (currentQuestionIndex >= totalQuestions) {
+      currentQuestionIndex = answeredCount;
+    }
+    
+    displayQuestion();
+  }
+}
+
+// Display results
+function showResults() {
+  const matchingAnswers = gameSession.student1.score / 10; // Since each match is worth 10 points
+  const totalScore = gameSession.student1.score;
+  
+  document.getElementById('final-score').textContent = totalScore;
+  document.getElementById('matching-answers').textContent = matchingAnswers;
+  
+  // Determine message based on score
+  let message;
+  if (matchingAnswers >= 7) {
+    document.getElementById('result-title').textContent = "🎉 Excellent Match! 🎉";
+    message = `You and ${studentNumber === 1 ? gameSession.student2.name : gameSession.student1.name} have very similar academic values!`;
+    createConfetti();
+  } else if (matchingAnswers >= 4) {
+    document.getElementById('result-title').textContent = "👍 Good Match!";
+    message = `You and ${studentNumber === 1 ? gameSession.student2.name : gameSession.student1.name} have somewhat similar academic values.`;
+  } else {
+    document.getElementById('result-title').textContent = "🤔 Interesting Results";
+    message = `You and ${studentNumber === 1 ? gameSession.student2.name : gameSession.student1.name} have different perspectives on academic integrity.`;
+  }
+  
+  document.getElementById('result-message').textContent = message;
+  
+  // Update leaderboard
+  fetchLeaderboard();
+  
+  showScreen('results');
+}
+
+// Fetch and display leaderboard
+function fetchLeaderboard() {
+  fetch('/api/get_leaderboard')
+    .then(response => response.json())
+    .then(data => {
+      const leaderboardBody = document.getElementById('leaderboard-body');
+      leaderboardBody.innerHTML = '';
+      
+      data.forEach((entry, index) => {
+        const row = document.createElement('tr');
+        let medalClass = '';
+        if (index === 0) medalClass = 'gold';
+        else if (index === 1) medalClass = 'silver';
+        else if (index === 2) medalClass = 'bronze';
+        
+        const medal = medalClass ? `<span class="medal ${medalClass}">${index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}</span>` : '';
+        
+        row.innerHTML = `
+          <td>${medal}${index + 1}</td>
+          <td>${entry.student1} & ${entry.student2}</td>
+          <td>${entry.score} (${entry.matching_answers} matches)</td>
+          <td>${entry.date}</td>
+        `;
+        leaderboardBody.appendChild(row);
+      });
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+}
+
+// Return to menu
+function returnToMenu() {
+  stopPolling();
+  
+  currentStudentName = "";
+  currentSessionCode = "";
+  isCreator = false;
+  studentNumber = 0;
+  currentQuestionIndex = 0;
+  gameSession = null;
+  
+  // Reset UI elements
+  document.getElementById('option1').style.display = 'block';
+  document.getElementById('option2').style.display = 'block';
+  document.getElementById('student-name').value = '';
+  document.getElementById('join-name').value = '';
+  document.getElementById('join-code').value = '';
+  
+  showScreen('login-screen');
+  fetchLeaderboard();
+}
+
+// Create confetti effect
+function createConfetti() {
+  const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff'];
+  for (let i = 0; i < 100; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.style.left = `${Math.random() * 100}vw`;
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDuration = `${Math.random() * 2 + 2}s`;
+    document.body.appendChild(confetti);
+    
+    // Remove confetti after animation
+    setTimeout(() => {
+      confetti.remove();
+    }, 3000);
+  }
+}
+
+// Initialize the game
+init();
+</script>
+</body>
+</html>

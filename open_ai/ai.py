@@ -34,12 +34,10 @@ DEFAULT_QUESTIONS: List[Dict[str, str]] = [
     {"question": "Would you rather...", "option1": "Do a nature walk", "option2": "Do a science lab"}
 ]
 
-
 def _parse_json_response(text: str) -> Optional[List[Dict[str, str]]]:
     try:
         return json.loads(text)
     except Exception:
-        # Try extracting from a fenced code block
         if "```" in text:
             parts = text.split("```")
             for part in parts:
@@ -50,7 +48,6 @@ def _parse_json_response(text: str) -> Optional[List[Dict[str, str]]]:
                     except Exception:
                         continue
         return None
-
 
 def generate_questions(student1_name: str, student2_name: Optional[str] = None, count: int = 10, topic: Optional[str] = None) -> List[Dict[str, str]]:
     api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
@@ -101,7 +98,6 @@ def generate_questions(student1_name: str, student2_name: Optional[str] = None, 
         parsed = _parse_json_response(content)
         if not parsed:
             return DEFAULT_QUESTIONS[:count]
-        # Validate shape minimally
         cleaned: List[Dict[str, str]] = []
         for item in parsed:
             q = {
